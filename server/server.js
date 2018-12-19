@@ -10,55 +10,70 @@ app.use(bodyParser.json());
 var lions = [];
 var id = 0;
 
+app.param('id', (req, res, next, id) => {
+    var index = _.findIndex(lions, {id: id});
+    var lion = lions[index];
+
+    if(lion) {
+        req.lion = lion;
+        next();
+    } else {
+        res.status(404).send();
+    }
+});
+
 app.get('/lions', (req, res) => {
+    // to test error middleware
+    //throw new Error('Custom error');
+
     res.json(lions);
 });
 
 app.get('/lions/:id', (req, res) => {
-    let lion = _.find(lions, req.params.id);
-    res.json(lion || {});
+    res.json(req.lion);
 });
 
-app.post('/lions', (req, res) => {
-    var lion = req.body;
+incrementId = (req, res, next) => {
+    req.body.id = ++id + '';
+    next();
+};
 
-    lion.id = ++id + '';
+app.post('/lions', incrementId, (req, res) => {
+    var lion = req.body;
     lions.push(lion);
     res.json(lion);
 });
 
 app.put('/lions/:id', (req, res) => {
 
-    let id = req.params.id;
     let update = req.body;
-
     if(update.id) {
         delete update.id;
     }
 
-    var index = _.findIndex(lions, {id: id});
-
-    if(!lions[index]) {
+    if(!req.lion) {
         res.send();
     } else {
-        var updatedLion = _.assign(lions[index], update);
+        var updatedLion = _.assign(req.lion, update);
         res.json(updatedLion);
     }
 });
 
 
 app.delete('/lions/:id', (req, res) => {
-
-    let id = req.params.id;
-    var index = _.findIndex(lions, {id: id});
-    var lion = lions[index];
-
+    var lion = req.lion;
     if(!lion) {
         res.send();
     } else {
         var deletedLion = lion;
         lions.splice(lion, 1)
         res.json(deletedLion);
+    }
+});
+
+app.use((err, req, res, next) => {
+    if(err) {
+        res.status(500).send(err);
     }
 });
 
