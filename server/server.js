@@ -14,6 +14,11 @@ app.use(express.static('client'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+    console.log('Request Body: ', req.body);
+    next();
+});
+
 // routes
 app.use('/lions', lionRouter);
 app.use('/tigers', tigerRouter);
