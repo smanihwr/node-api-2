@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-    console.log('Request Body: ', req.body);
+    //console.log('Request Body: ', req.body);
     next();
 });
 
@@ -30,7 +30,4 @@ app.use((err, req, res, next) => {
     }
 });
 
-const port = 3000;
-app.listen(port, () => {
-    console.log(`listening on port  ${port}`);
-});
+module.exports = app;
